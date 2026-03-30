@@ -1,0 +1,30 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/projectSettingsUpdater.xml
+/modules.xml
+/.idea.LinqConsoleLab.iml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+.idea/
+*.sln.iml
+*.user
+*.suo
+
+bin/
+obj/
+
+*.exe
+*.dll
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+
+.DS_Store
+__MACOSX/
