@@ -98,83 +98,65 @@ public sealed class ZadaniaLinq
             .Select(p => $"{p.Nazwa} [{p.Kategoria}]");
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Połącz studentów z zapisami po StudentId.
-    /// Zwróć pełne imię i nazwisko studenta oraz datę zapisu.
-    ///
-    /// SQL:
-    /// SELECT s.Imie, s.Nazwisko, z.DataZapisu
-    /// FROM Studenci s
-    /// JOIN Zapisy z ON s.Id = z.StudentId;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie11_PolaczStudentowIZapisy()
     {
-        throw Niezaimplementowano(nameof(Zadanie11_PolaczStudentowIZapisy));
+        var wynik = from student in DaneUczelni.Studenci
+            join zapis in DaneUczelni.Zapisy on student.Id equals zapis.StudentId
+            select $"{student.Imie} {student.Nazwisko} - Data: {zapis.DataZapisu:yyyy-MM-dd}";
+
+        return wynik;
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Przygotuj wszystkie pary student-przedmiot na podstawie zapisów.
-    /// Użyj podejścia, które pozwoli spłaszczyć dane do jednej sekwencji wyników.
-    ///
-    /// SQL:
-    /// SELECT s.Imie, s.Nazwisko, p.Nazwa
-    /// FROM Zapisy z
-    /// JOIN Studenci s ON s.Id = z.StudentId
-    /// JOIN Przedmioty p ON p.Id = z.PrzedmiotId;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie12_ParyStudentPrzedmiot()
     {
-        throw Niezaimplementowano(nameof(Zadanie12_ParyStudentPrzedmiot));
+        var wynik = from zapis in DaneUczelni.Zapisy
+            join student in DaneUczelni.Studenci on zapis.StudentId equals student.Id
+            join przedmiot in DaneUczelni.Przedmioty on zapis.PrzedmiotId equals przedmiot.Id
+            select $"{student.Imie} {student.Nazwisko} - {przedmiot.Nazwa}";
+
+        return wynik;
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Pogrupuj zapisy według przedmiotu i zwróć nazwę przedmiotu oraz liczbę zapisów.
-    ///
-    /// SQL:
-    /// SELECT p.Nazwa, COUNT(*)
-    /// FROM Zapisy z
-    /// JOIN Przedmioty p ON p.Id = z.PrzedmiotId
-    /// GROUP BY p.Nazwa;
-    /// </summary>
+   
     public IEnumerable<string> Zadanie13_GrupowanieZapisowWedlugPrzedmiotu()
     {
-        throw Niezaimplementowano(nameof(Zadanie13_GrupowanieZapisowWedlugPrzedmiotu));
+        var wynik = from zapis in DaneUczelni.Zapisy
+            join przedmiot in DaneUczelni.Przedmioty on zapis.PrzedmiotId equals przedmiot.Id
+            group zapis by przedmiot.Nazwa into grupa
+            select $"{grupa.Key}: {grupa.Count()} zapisów";
+
+        return wynik;
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Oblicz średnią ocenę końcową dla każdego przedmiotu.
-    /// Pomiń rekordy, w których ocena końcowa ma wartość null.
-    ///
-    /// SQL:
-    /// SELECT p.Nazwa, AVG(z.OcenaKoncowa)
-    /// FROM Zapisy z
-    /// JOIN Przedmioty p ON p.Id = z.PrzedmiotId
-    /// WHERE z.OcenaKoncowa IS NOT NULL
-    /// GROUP BY p.Nazwa;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie14_SredniaOcenaNaPrzedmiot()
     {
-        throw Niezaimplementowano(nameof(Zadanie14_SredniaOcenaNaPrzedmiot));
+        var wynik = from zapis in DaneUczelni.Zapisy
+            join przedmiot in DaneUczelni.Przedmioty on zapis.PrzedmiotId equals przedmiot.Id
+            where zapis.OcenaKoncowa.HasValue
+            group zapis by przedmiot.Nazwa into grupa
+            select $"{grupa.Key}: {grupa.Average(z => z.OcenaKoncowa.Value):F2}";
+
+        return wynik;
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Dla każdego prowadzącego policz liczbę przypisanych przedmiotów.
-    /// W wyniku zwróć pełne imię i nazwisko oraz liczbę przedmiotów.
-    ///
-    /// SQL:
-    /// SELECT pr.Imie, pr.Nazwisko, COUNT(p.Id)
-    /// FROM Prowadzacy pr
-    /// LEFT JOIN Przedmioty p ON p.ProwadzacyId = pr.Id
-    /// GROUP BY pr.Imie, pr.Nazwisko;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie15_ProwadzacyILiczbaPrzedmiotow()
     {
-        throw Niezaimplementowano(nameof(Zadanie15_ProwadzacyILiczbaPrzedmiotow));
+        var wynik = DaneUczelni.Prowadzacy.GroupJoin(
+                DaneUczelni.Przedmioty,
+                prowadzacy => prowadzacy.Id,
+                przedmiot => przedmiot.ProwadzacyId,
+                (prowadzacy, przedmiotyProwadzacego) => new
+                {
+                    ImieNazwisko = $"{prowadzacy.Imie} {prowadzacy.Nazwisko}",
+                    LiczbaPrzedmiotow = przedmiotyProwadzacego.Count()
+                })
+            .Select(x => $"{x.ImieNazwisko}: {x.LiczbaPrzedmiotow} przedmiotów");
+
+        return wynik;
     }
 
     /// <summary>
