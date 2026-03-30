@@ -50,79 +50,52 @@ public sealed class ZadaniaLinq
         string odpowiedz = czyIstnieje ? "Tak" : "Nie";
         return new[] { $"Czy istnieje nieaktywne zapisanie? {odpowiedz}" };
     }
-
-    /// <summary>
-    /// Zadanie:
-    /// Sprawdź, czy każdy prowadzący ma uzupełnioną nazwę katedry.
-    /// Warto użyć metody, która weryfikuje warunek dla całej kolekcji.
-    ///
-    /// SQL:
-    /// SELECT CASE WHEN COUNT(*) = COUNT(Katedra)
-    /// THEN 1 ELSE 0 END
-    /// FROM Prowadzacy;
-    /// </summary>
+    
+    
     public IEnumerable<string> Zadanie06_CzyWszyscyProwadzacyMajaKatedre()
     {
-        throw Niezaimplementowano(nameof(Zadanie06_CzyWszyscyProwadzacyMajaKatedre));
+        bool czyWszyscyMaja = DaneUczelni.Prowadzacy.All(p => !string.IsNullOrWhiteSpace(p.Katedra));
+        
+        string odpowiedz = czyWszyscyMaja ? "Tak" : "Nie";
+        return new[] { $"Czy wszyscy prowadzący mają przypisaną katedrę? {odpowiedz}" };
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Policz, ile aktywnych zapisów znajduje się w systemie.
-    ///
-    /// SQL:
-    /// SELECT COUNT(*)
-    /// FROM Zapisy
-    /// WHERE CzyAktywny = 1;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie07_LiczbaAktywnychZapisow()
     {
-        throw Niezaimplementowano(nameof(Zadanie07_LiczbaAktywnychZapisow));
+        int liczbaAktywnych = DaneUczelni.Zapisy.Count(z => z.CzyAktywny);
+        return new[] { $"Liczba aktywnych zapisów: {liczbaAktywnych}" };
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Pobierz listę unikalnych miast studentów i posortuj ją rosnąco.
-    ///
-    /// SQL:
-    /// SELECT DISTINCT Miasto
-    /// FROM Studenci
-    /// ORDER BY Miasto;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie08_UnikalneMiastaStudentow()
     {
-        throw Niezaimplementowano(nameof(Zadanie08_UnikalneMiastaStudentow));
+        return DaneUczelni.Studenci
+            .Select(s => s.Miasto)
+            .Distinct()
+            .OrderBy(miasto => miasto);
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Zwróć trzy najnowsze zapisy na przedmioty.
-    /// W wyniku pokaż datę zapisu, identyfikator studenta i identyfikator przedmiotu.
-    ///
-    /// SQL:
-    /// SELECT TOP 3 DataZapisu, StudentId, PrzedmiotId
-    /// FROM Zapisy
-    /// ORDER BY DataZapisu DESC;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie09_TrzyNajnowszeZapisy()
     {
-        throw Niezaimplementowano(nameof(Zadanie09_TrzyNajnowszeZapisy));
+        return DaneUczelni.Zapisy
+            .OrderByDescending(z => z.DataZapisu)
+            .Take(3)
+            .Select(z => $"Data: {z.DataZapisu:yyyy-MM-dd}, Student: {z.StudentId}, Przedmiot: {z.PrzedmiotId}");
     }
 
-    /// <summary>
-    /// Zadanie:
-    /// Zaimplementuj prostą paginację dla listy przedmiotów.
-    /// Załóż stronę o rozmiarze 2 i zwróć drugą stronę danych.
-    ///
-    /// SQL:
-    /// SELECT Nazwa, Kategoria
-    /// FROM Przedmioty
-    /// ORDER BY Nazwa
-    /// OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY;
-    /// </summary>
+    
     public IEnumerable<string> Zadanie10_DrugaStronaPrzedmiotow()
     {
-        throw Niezaimplementowano(nameof(Zadanie10_DrugaStronaPrzedmiotow));
+        const int pageSize = 2; 
+        const int pageNumber = 2; 
+        
+        return DaneUczelni.Przedmioty
+            .OrderBy(p => p.Nazwa)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => $"{p.Nazwa} [{p.Kategoria}]");
     }
 
     /// <summary>
